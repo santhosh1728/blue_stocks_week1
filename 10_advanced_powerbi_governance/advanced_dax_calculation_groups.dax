@@ -1,0 +1,114 @@
+// ==============================================================================
+// ENTERPRISE POWER BI ADVANCED ARCHITECTURE (WEEK 2)
+// Calculation Groups, Dynamic Row-Level Security (RLS), and Field Parameters
+// Compatibility: Power BI Desktop, Tabular Editor 2/3, Azure Analysis Services
+// ==============================================================================
+
+// ------------------------------------------------------------------------------
+// SECTION 1: CALCULATION GROUP: "Time Intelligence Dynamics"
+// Solves Measure Explosion: Turns 50 separate measures into 1 dynamic engine
+// Applied to ANY base measure: [Total Sales], [Total Profit], [Total Units], etc.
+// ------------------------------------------------------------------------------
+
+/*
+Table Name: 'Time Calculations'
+Column Name: 'Time Frame'
+Calculation Items:
+*/
+
+// Calculation Item 1: Current Period (Baseline value)
+// Name: "Current"
+SELECTEDMEASURE()
+
+// Calculation Item 2: Year-to-Date (YTD)
+// Name: "YTD"
+CALCULATE(
+    SELECTEDMEASURE(),
+    DATESYTD(Dim_Date[Date])
+)
+
+// Calculation Item 3: Prior Year (PY / SPLY)
+// Name: "Prior Year"
+CALCULATE(
+    SELECTEDMEASURE(),
+    SAMEPERIODLASTYEAR(Dim_Date[Date])
+)
+
+// Calculation Item 4: Year-over-Year Dollar Variance
+// Name: "YoY Variance $"
+VAR CurrentVal = SELECTEDMEASURE()
+VAR PriorVal = CALCULATE(SELECTEDMEASURE(), SAMEPERIODLASTYEAR(Dim_Date[Date]))
+RETURN
+    IF(
+        NOT ISBLANK(CurrentVal) && NOT ISBLANK(PriorVal),
+        CurrentVal - PriorVal,
+        BLANK()
+    )
+
+// Calculation Item 5: Year-over-Year Growth Percentage
+// Name: "YoY Growth %"
+VAR CurrentVal = SELECTEDMEASURE()
+VAR PriorVal = CALCULATE(SELECTEDMEASURE(), SAMEPERIODLASTYEAR(Dim_Date[Date]))
+VAR Variance = CurrentVal - PriorVal
+RETURN
+    DIVIDE(Variance, PriorVal, BLANK())
+
+// Dynamic Format String for YoY Growth %
+/*
+Format String Expression:
+"#,##0.0%"
+*/
+
+
+// ------------------------------------------------------------------------------
+// SECTION 2: DYNAMIC ROW-LEVEL SECURITY (RLS)
+// Enforcing Data Governance & Tenant Separation
+// ------------------------------------------------------------------------------
+
+/*
+Security Table: User_Territory_Security
+Columns:
+- User_Email (e.g., 'emily.watson@enterprise.com')
+- Region (e.g., 'North America')
+*/
+
+// Dynamic DAX Filter applied on 'Dim_Geography' or 'Dim_Customers':
+[Region] = 
+LOOKUPVALUE(
+    User_Territory_Security[Region],
+    User_Territory_Security[User_Email],
+    USERPRINCIPALNAME()
+)
+||
+// Executive Bypass: Global Admins see everything
+LOOKUPVALUE(
+    User_Territory_Security[Region],
+    User_Territory_Security[User_Email],
+    USERPRINCIPALNAME()
+) = "GLOBAL"
+
+
+// ------------------------------------------------------------------------------
+// SECTION 3: VIRTUAL TABLE DAX (Advanced Analytical Patterns)
+// Computing Customer Lifetime Value percentiles without physical helper columns
+// ------------------------------------------------------------------------------
+
+// Percent of Top 20% Customers Revenue Contribution (Pareto 80/20 Rule)
+Top 20 Pct Customer Revenue Share = 
+VAR TotalCustomers = DISTINCTCOUNT(Fact_Sales[Customer_ID])
+VAR Top20Count = ROUNDUP(TotalCustomers * 0.20, 0)
+VAR TopCustomersTable = 
+    TOPN(
+        Top20Count,
+        ALL(Dim_Customers[Customer_ID]),
+        [Total Sales],
+        DESC
+    )
+VAR TopCustomersRevenue = 
+    CALCULATE(
+        [Total Sales],
+        KEEPFILTERS(TopCustomersTable)
+    )
+RETURN
+    DIVIDE(TopCustomersRevenue, [Total Sales], 0.0)
+

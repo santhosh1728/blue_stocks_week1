@@ -1,0 +1,31 @@
+product_id,product_name,category,subcategory,cost_price,unit_price
+PROD-TEC-001,MacBook Pro 16,Technology,Laptops,1800.0,2499.0
+PROD-TEC-002,Dell XPS 15,Technology,Laptops,1400.0,1899.0
+PROD-TEC-003,ThinkPad X1 Carbon,Technology,Laptops,1200.0,1650.0
+PROD-TEC-004,iPhone 15 Pro,Technology,Phones,750.0,1099.0
+PROD-TEC-005,Samsung Galaxy S24,Technology,Phones,650.0,999.0
+PROD-TEC-006,Google Pixel 8 Pro,Technology,Phones,550.0,899.0
+PROD-TEC-007,Logitech MX Master 3S,Technology,Accessories,60.0,99.0
+PROD-TEC-008,Keychron K2 Mechanical Keyboard,Technology,Accessories,50.0,89.0
+PROD-TEC-009,Dell UltraSharp 27 4K Monitor,Technology,Accessories,350.0,549.0
+PROD-TEC-010,Anker 737 Power Bank,Technology,Accessories,80.0,140.0
+PROD-FUR-001,Herman Miller Aeron Chair,Furniture,Chairs,850.0,1395.0
+PROD-FUR-002,Steelcase Gesture Chair,Furniture,Chairs,780.0,1250.0
+PROD-FUR-003,Ergonomic Mesh Task Chair,Furniture,Chairs,160.0,299.0
+PROD-FUR-004,Jarvis Bamboo Standing Desk,Furniture,Desks,420.0,699.0
+PROD-FUR-005,Uplift V2 Commercial Desk,Furniture,Desks,480.0,799.0
+PROD-FUR-006,Minimalist Oak Writing Desk,Furniture,Desks,180.0,320.0
+PROD-FUR-007,Steelcase 3-Drawer Filing Cabinet,Furniture,Storage,140.0,260.0
+PROD-FUR-008,Modular Bookshelf 5-Tier,Furniture,Storage,90.0,179.0
+PROD-OFF-001,Heavy Duty Desktop Stapler,Office Supplies,Supplies,12.0,24.0
+PROD-OFF-002,Premium Multipurpose Copy Paper (5 Reams),Office Supplies,Paper,22.0,45.0
+PROD-OFF-003,Moleskine Classic Hardcover Notebook,Office Supplies,Paper,11.0,22.0
+PROD-OFF-004,Pilot G2 Gel Pens (Pack of 12),Office Supplies,Supplies,8.0,18.0
+PROD-OFF-005,Fellowes Powershred Cross-Cut Shredder,Office Supplies,Machines,110.0,199.0
+PROD-OFF-006,Epson EcoTank Color Printer,Office Supplies,Machines,180.0,299.0
+PROD-SMT-001,Apple Watch Series 9,Smart Gadgets,Wearables,260.0,399.0
+PROD-SMT-002,Garmin Fenix 7 Pro,Smart Gadgets,Wearables,480.0,799.0
+PROD-SMT-003,Sony WH-1000XM5 ANC Headphones,Smart Gadgets,Smart Audio,240.0,399.0
+PROD-SMT-004,AirPods Pro (2nd Gen),Smart Gadgets,Smart Audio,160.0,249.0
+PROD-SMT-005,Philips Hue Smart LED Starter Kit,Smart Gadgets,Lighting,110.0,199.0
+PROD-SMT-006,BenQ ScreenBar Monitor Light,Smart Gadgets,Lighting,75.0,139.0

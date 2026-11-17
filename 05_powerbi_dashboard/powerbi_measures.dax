@@ -1,0 +1,208 @@
+// ==============================================================================
+// APEX RETAIL SOLUTIONS - PRODUCTION DAX MEASURES LIBRARY
+// Compatibility: Microsoft Power BI Desktop / Power BI Service / SSAS Tabular
+// Model Structure: Star Schema
+// Fact Table: Fact_Sales
+// Dimensions: Dim_Customers, Dim_Products, Dim_Date, Dim_Geography
+// ==============================================================================
+
+// ------------------------------------------------------------------------------
+// SECTION 1: CORE BASE MEASURES
+// ------------------------------------------------------------------------------
+
+// Total Gross Revenue
+Total Sales = 
+SUM(Fact_Sales[Sales_Amount])
+
+// Total Cost of Goods Sold (COGS)
+Total Cost = 
+SUMX(
+    Fact_Sales,
+    Fact_Sales[Quantity] * RELATED(Dim_Products[Cost_Price])
+)
+
+// Total Net Profit
+Total Profit = 
+[Total Sales] - [Total Cost]
+
+// Gross Profit Margin Percentage
+Profit Margin Pct = 
+DIVIDE(
+    [Total Profit],
+    [Total Sales],
+    0.0
+)
+
+// Total Physical Units Sold
+Total Units Sold = 
+SUM(Fact_Sales[Quantity])
+
+// Total Distinct Transactions / Orders
+Total Orders = 
+DISTINCTCOUNT(Fact_Sales[Order_ID])
+
+// Total Distinct Purchasing Customers
+Active Customers = 
+DISTINCTCOUNT(Fact_Sales[Customer_ID])
+
+// Average Order Value (AOV)
+Average Order Value = 
+DIVIDE(
+    [Total Sales],
+    [Total Orders],
+    0.0
+)
+
+// Average Quantity per Order Basket
+Average Basket Size = 
+DIVIDE(
+    [Total Units Sold],
+    [Total Orders],
+    0.0
+)
+
+// Average Discount Rate Applied
+Average Discount Rate = 
+AVERAGE(Fact_Sales[Discount_Rate])
+
+
+// ------------------------------------------------------------------------------
+// SECTION 2: TIME INTELLIGENCE MEASURES (Requires Dim_Date)
+// ------------------------------------------------------------------------------
+
+// Sales Year-to-Date (YTD)
+Sales YTD = 
+TOTALYTD(
+    [Total Sales],
+    Dim_Date[Date]
+)
+
+// Profit Year-to-Date (YTD)
+Profit YTD = 
+TOTALYTD(
+    [Total Profit],
+    Dim_Date[Date]
+)
+
+// Sales Prior Year (PY / Same Period Last Year)
+Sales PY = 
+CALCULATE(
+    [Total Sales],
+    SAMEPERIODLASTYEAR(Dim_Date[Date])
+)
+
+// Year-over-Year (YoY) Sales Dollar Growth
+Sales YoY Growth $ = 
+[Total Sales] - [Sales PY]
+
+// Year-over-Year (YoY) Sales Percentage Growth
+Sales YoY Growth Pct = 
+DIVIDE(
+    [Sales YoY Growth $],
+    [Sales PY],
+    BLANK()
+)
+
+// Sales Month-to-Date (MTD)
+Sales MTD = 
+TOTALMTD(
+    [Total Sales],
+    Dim_Date[Date]
+)
+
+// Sales Previous Month (PM)
+Sales PM = 
+CALCULATE(
+    [Total Sales],
+    DATEADD(Dim_Date[Date], -1, MONTH)
+)
+
+// Month-over-Month (MoM) Growth Percentage
+Sales MoM Growth Pct = 
+DIVIDE(
+    [Total Sales] - [Sales PM],
+    [Sales PM],
+    BLANK()
+)
+
+// 3-Month Rolling Average Sales
+Sales 3M Moving Average = 
+CALCULATE(
+    AVERAGEX(
+        DATESINPERIOD(Dim_Date[Date], LASTDATE(Dim_Date[Date]), -3, MONTH),
+        [Total Sales]
+    )
+)
+
+
+// ------------------------------------------------------------------------------
+// SECTION 3: CONDITIONAL & FILTERED MEASURES
+// ------------------------------------------------------------------------------
+
+// Completed Orders Sales Only (Excluding Returns and Cancellations)
+Completed Sales = 
+CALCULATE(
+    [Total Sales],
+    Fact_Sales[Order_Status] = "Completed"
+)
+
+// Refund / Return Rate Percentage
+Refund Rate Pct = 
+DIVIDE(
+    CALCULATE([Total Orders], Fact_Sales[Order_Status] = "Refunded"),
+    [Total Orders],
+    0.0
+)
+
+// Cancellation Rate Percentage
+Cancellation Rate Pct = 
+DIVIDE(
+    CALCULATE([Total Orders], Fact_Sales[Order_Status] = "Cancelled"),
+    [Total Orders],
+    0.0
+)
+
+// Technology Category Sales
+Sales Technology = 
+CALCULATE(
+    [Total Sales],
+    Dim_Products[Category] = "Technology"
+)
+
+// Corporate Segment Sales
+Sales Corporate Segment = 
+CALCULATE(
+    [Total Sales],
+    Dim_Customers[Customer_Segment] = "Corporate"
+)
+
+
+// ------------------------------------------------------------------------------
+// SECTION 4: RANKING & DYNAMIC EVALUATION
+// ------------------------------------------------------------------------------
+
+// Dynamic Product Rank by Sales within Selected Context
+Product Sales Rank = 
+RANKX(
+    ALL(Dim_Products[Product_Name]),
+    [Total Sales],
+    ,
+    DESC,
+    Dense
+)
+
+// Top 5 Products Flag for Visual Filtering
+Top 5 Product Filter = 
+IF(
+    [Product Sales Rank] <= 5,
+    1,
+    0
+)
+
+// Dynamic KPI Title String for Dashboard Cards
+Selected Period Label = 
+VAR MinDate = MIN(Dim_Date[Date])
+VAR MaxDate = MAX(Dim_Date[Date])
+RETURN
+"Performance Period: " & FORMAT(MinDate, "MMM YYYY") & " - " & FORMAT(MaxDate, "MMM YYYY")
+

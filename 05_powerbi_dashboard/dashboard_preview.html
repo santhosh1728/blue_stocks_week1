@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Apex Retail Solutions - Executive Power BI Dashboard</title>
+    <!-- Chart.js CDN for interactive visualizations -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary: #1E40AF;
+            --primary-light: #3B82F6;
+            --success: #059669;
+            --warning: #D97706;
+            --danger: #DC2626;
+            --dark: #0F172A;
+            --card-bg: #FFFFFF;
+            --bg-canvas: #F8FAFC;
+            --border: #E2E8F0;
+            --text-main: #1E293B;
+            --text-muted: #64748B;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-canvas);
+            color: var(--text-main);
+            padding: 24px;
+            min-height: 100vh;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--dark);
+            color: white;
+            padding: 20px 28px;
+            border-radius: 12px;
+            margin-bottom: 24px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        .header-title h1 {
+            font-size: 24px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+
+        .header-title p {
+            font-size: 13px;
+            color: #94A3B8;
+            margin-top: 4px;
+        }
+
+        .header-badge {
+            background: rgba(59, 130, 246, 0.2);
+            border: 1px solid rgba(59, 130, 246, 0.5);
+            color: #93C5FD;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        /* Filter Controls */
+        .filter-bar {
+            display: flex;
+            gap: 16px;
+            background: white;
+            padding: 16px 24px;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            margin-bottom: 24px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .filter-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .filter-group label {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-muted);
+        }
+
+        .filter-group select {
+            padding: 8px 14px;
+            border-radius: 6px;
+            border: 1px solid var(--border);
+            background: #F8FAFC;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-main);
+            cursor: pointer;
+            outline: none;
+        }
+
+        .reset-btn {
+            margin-left: auto;
+            padding: 8px 16px;
+            background: #F1F5F9;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .reset-btn:hover {
+            background: #E2E8F0;
+        }
+
+        /* KPI Scorecard Grid */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+            margin-bottom: 24px;
+        }
+
+        .kpi-card {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .kpi-card::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+        }
+
+        .kpi-card.blue::before { background: var(--primary-light); }
+        .kpi-card.green::before { background: var(--success); }
+        .kpi-card.amber::before { background: var(--warning); }
+        .kpi-card.indigo::before { background: #6366F1; }
+        .kpi-card.purple::before { background: #8B5CF6; }
+
+        .kpi-label {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .kpi-value {
+            font-size: 26px;
+            font-weight: 700;
+            color: var(--dark);
+            margin: 8px 0 4px 0;
+        }
+
+        .kpi-sub {
+            font-size: 12px;
+            color: var(--success);
+            font-weight: 500;
+        }
+
+        /* Charts Grid */
+        .chart-grid {
+            display: grid;
+            grid-template-columns: repeat(12, 1fr);
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+
+        .chart-card {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        }
+
+        .col-8 { grid-column: span 8; }
+        .col-4 { grid-column: span 4; }
+        .col-6 { grid-column: span 6; }
+        .col-12 { grid-column: span 12; }
+
+        @media (max-width: 1024px) {
+            .col-8, .col-4, .col-6 { grid-column: span 12; }
+        }
+
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .chart-title {
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--dark);
+        }
+
+        .chart-container {
+            position: relative;
+            height: 280px;
+            width: 100%;
+        }
+
+        /* Data Table */
+        .table-responsive {
+            overflow-x: auto;
+            max-height: 380px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+            text-align: left;
+        }
+
+        th {
+            background: #F1F5F9;
+            color: var(--text-muted);
+            font-weight: 600;
+            padding: 10px 14px;
+            border-bottom: 2px solid var(--border);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        td {
+            padding: 10px 14px;
+            border-bottom: 1px solid var(--border);
+            color: var(--text-main);
+        }
+
+        tr:hover td {
+            background-color: #F8FAFC;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .badge-completed { background: #DEF7EC; color: #03543F; }
+        .badge-shipped { background: #E1EFFE; color: #1E429F; }
+        .badge-refunded { background: #FDE8E8; color: #9B1C1C; }
+        .badge-cancelled { background: #F3F4F6; color: #374151; }
+    </style>
+</head>
+<body>
+
+    <!-- Header -->
+    <header class="header">
+        <div class="header-title">
+            <h1>Apex Retail Solutions - Business Performance Dashboard</h1>
+            <p>Live Executive BI Model | Enterprise Omnichannel Analytics | Built for Power BI</p>
+        </div>
+        <div class="header-badge">Power BI Reference Spec v1.0</div>
+    </header>
+
+    <!-- Interactive Filter Slicers -->
+    <div class="filter-bar">
+        <div class="filter-group">
+            <label for="filter-region">Region:</label>
+            <select id="filter-region" onchange="applyFilters()">
+                <option value="ALL">All Regions (Global)</option>
+                <option value="North America">North America</option>
+                <option value="Europe">Europe</option>
+                <option value="APAC">APAC</option>
+                <option value="LATAM">LATAM</option>
+            </select>
+        </div>
+
+        <div class="filter-group">
+            <label for="filter-category">Category:</label>
+            <select id="filter-category" onchange="applyFilters()">
+                <option value="ALL">All Categories</option>
+                <option value="Technology">Technology</option>
+                <option value="Furniture">Furniture</option>
+                <option value="Smart Gadgets">Smart Gadgets</option>
+                <option value="Office Supplies">Office Supplies</option>
+            </select>
+        </div>
+
+        <div class="filter-group">
+            <label for="filter-segment">Segment:</label>
+            <select id="filter-segment" onchange="applyFilters()">
+                <option value="ALL">All Segments</option>
+                <option value="Corporate">Corporate</option>
+                <option value="Consumer">Consumer</option>
+                <option value="Home Office">Home Office</option>
+            </select>
+        </div>
+
+        <button class="reset-btn" onclick="resetFilters()">Reset Slicers</button>
+    </div>
+
+    <!-- KPI Scorecards -->
+    <div class="kpi-grid">
+        <div class="kpi-card blue">
+            <div class="kpi-label">Total Revenue</div>
+            <div class="kpi-value" id="kpi-revenue">$1,764,170</div>
+            <div class="kpi-sub">↑ +14.2% YoY Growth</div>
+        </div>
+        <div class="kpi-card green">
+            <div class="kpi-label">Total Net Profit</div>
+            <div class="kpi-value" id="kpi-profit">$537,291</div>
+            <div class="kpi-sub">↑ +18.5% Net Contribution</div>
+        </div>
+        <div class="kpi-card amber">
+            <div class="kpi-label">Profit Margin %</div>
+            <div class="kpi-value" id="kpi-margin">30.5%</div>
+            <div class="kpi-sub">Target: &gt; 28.0%</div>
+        </div>
+        <div class="kpi-card indigo">
+            <div class="kpi-label">Total Orders</div>
+            <div class="kpi-value" id="kpi-orders">1,209</div>
+            <div class="kpi-sub">100% Fulfillment Tracked</div>
+        </div>
+        <div class="kpi-card purple">
+            <div class="kpi-label">Average Order Value</div>
+            <div class="kpi-value" id="kpi-aov">$1,459</div>
+            <div class="kpi-sub">Median: $741.00</div>
+        </div>
+    </div>
+
+    <!-- Charts Layout -->
+    <div class="chart-grid">
+        <!-- Monthly Trend -->
+        <div class="chart-card col-8">
+            <div class="chart-header">
+                <div class="chart-title">Revenue & Net Profit Trend (Monthly Timeline)</div>
+            </div>
+            <div class="chart-container">
+                <canvas id="monthlyChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Segment Donut -->
+        <div class="chart-card col-4">
+            <div class="chart-header">
+                <div class="chart-title">Revenue by Customer Segment</div>
+            </div>
+            <div class="chart-container">
+                <canvas id="segmentChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Category Clustered Bar -->
+        <div class="chart-card col-6">
+            <div class="chart-header">
+                <div class="chart-title">Category Revenue vs Profit ($K)</div>
+            </div>
+            <div class="chart-container">
+                <canvas id="categoryChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Regional Performance -->
+        <div class="chart-card col-6">
+            <div class="chart-header">
+                <div class="chart-title">Territory Revenue Breakdown ($K)</div>
+            </div>
+            <div class="chart-container">
+                <canvas id="regionChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Transaction Details Table -->
+        <div class="chart-card col-12">
+            <div class="chart-header">
+                <div class="chart-title">Recent Transactions & Order Drill-through</div>
+            </div>
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Order ID</th>
+                            <th>Date</th>
+                            <th>Customer Name</th>
+                            <th>Segment</th>
+                            <th>Region</th>
+                            <th>Category</th>
+                            <th>Product</th>
+                            <th>Qty</th>
+                            <th>Sales ($)</th>
+                            <th>Profit ($)</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="table-body">
+                        <!-- Loaded dynamically -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Data Store
+        const rawMonthly = {
+            labels: ['2024-01', '2024-03', '2024-05', '2024-07', '2024-09', '2024-11', '2025-01', '2025-03', '2025-05', '2025-07', '2025-09'],
+            revenue: [73.8, 54.2, 59.0, 81.3, 76.5, 94.2, 88.5, 78.4, 84.1, 98.6, 91.2],
+            profit: [22.4, 16.5, 17.8, 24.8, 23.1, 29.2, 27.1, 23.9, 25.8, 30.5, 28.1]
+        };
+
+        const sampleRows = [
+            { id: "ORD-2025-2011", date: "2025-10-31", customer: "Liam O'Connor", seg: "Consumer", reg: "Europe", cat: "Furniture", prod: "Uplift V2 Commercial Desk", qty: 1, sales: 719.10, profit: 239.10, status: "Completed" },
+            { id: "ORD-2024-1035", date: "2025-10-31", customer: "Chloe Martin", seg: "Home Office", reg: "Europe", cat: "Smart Gadgets", prod: "BenQ ScreenBar Light", qty: 2, sales: 222.40, profit: 72.40, status: "Completed" },
+            { id: "ORD-2024-1218", date: "2025-10-31", customer: "Grace Kim", seg: "Corporate", reg: "APAC", cat: "Technology", prod: "MacBook Pro 16", qty: 4, sales: 9996.00, profit: 2796.00, status: "Completed" },
+            { id: "ORD-2024-1394", date: "2025-10-31", customer: "Lukas Schmidt", seg: "Corporate", reg: "Europe", cat: "Technology", prod: "Dell XPS 15", qty: 1, sales: 1899.00, profit: 499.00, status: "Completed" },
+            { id: "ORD-2025-2072", date: "2025-10-30", customer: "James Wilson", seg: "Home Office", reg: "North America", cat: "Technology", prod: "iPhone 15 Pro", qty: 1, sales: 1044.05, profit: 294.05, status: "Completed" },
+            { id: "ORD-2024-1188", date: "2025-10-29", customer: "David Miller", seg: "Consumer", reg: "North America", cat: "Office Supplies", prod: "Epson EcoTank Color Printer", qty: 2, sales: 538.20, profit: 178.20, status: "Shipped" },
+            { id: "ORD-2025-2190", date: "2025-10-28", customer: "Emily Watson", seg: "Corporate", reg: "North America", cat: "Furniture", prod: "Herman Miller Aeron Chair", qty: 3, sales: 3766.50, profit: 1216.50, status: "Completed" },
+            { id: "ORD-2024-1299", date: "2025-10-27", customer: "Ananya Sharma", seg: "Corporate", reg: "APAC", cat: "Smart Gadgets", prod: "Sony WH-1000XM5 ANC", qty: 2, sales: 718.20, profit: 238.20, status: "Refunded" }
+        ];
+
+        // Initialize Charts
+        let monthlyChart, segmentChart, categoryChart, regionChart;
+
+        function initCharts() {
+            // Line Chart
+            const ctxMonthly = document.getElementById('monthlyChart').getContext('2d');
+            monthlyChart = new Chart(ctxMonthly, {
+                type: 'line',
+                data: {
+                    labels: rawMonthly.labels,
+                    datasets: [
+                        { label: 'Revenue ($K)', data: rawMonthly.revenue, borderColor: '#3B82F6', backgroundColor: 'rgba(59, 130, 246, 0.1)', fill: true, tension: 0.3 },
+                        { label: 'Profit ($K)', data: rawMonthly.profit, borderColor: '#059669', backgroundColor: 'transparent', borderDash: [5, 5], tension: 0.3 }
+                    ]
+                },
+                options: { responsive: true, maintainAspectRatio: false }
+            });
+
+            // Donut Chart
+            const ctxSegment = document.getElementById('segmentChart').getContext('2d');
+            segmentChart = new Chart(ctxSegment, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Corporate', 'Consumer', 'Home Office'],
+                    datasets: [{ data: [69.3, 15.3, 15.4], backgroundColor: ['#1E40AF', '#3B82F6', '#93C5FD'] }]
+                },
+                options: { responsive: true, maintainAspectRatio: false }
+            });
+
+            // Bar Chart Category
+            const ctxCat = document.getElementById('categoryChart').getContext('2d');
+            categoryChart = new Chart(ctxCat, {
+                type: 'bar',
+                data: {
+                    labels: ['Technology', 'Furniture', 'Smart Gadgets', 'Office Supplies'],
+                    datasets: [
+                        { label: 'Revenue ($K)', data: [993.9, 492.2, 227.0, 51.1], backgroundColor: '#3B82F6' },
+                        { label: 'Profit ($K)', data: [257.5, 179.3, 80.3, 20.2], backgroundColor: '#10B981' }
+                    ]
+                },
+                options: { responsive: true, maintainAspectRatio: false }
+            });
+
+            // Bar Chart Region
+            const ctxRegion = document.getElementById('regionChart').getContext('2d');
+            regionChart = new Chart(ctxRegion, {
+                type: 'bar',
+                data: {
+                    labels: ['North America', 'Europe', 'APAC', 'LATAM'],
+                    datasets: [{ label: 'Sales ($K)', data: [952.4, 501.2, 243.8, 66.8], backgroundColor: '#6366F1' }]
+                },
+                options: { responsive: true, maintainAspectRatio: false }
+            });
+        }
+
+        function populateTable(rows) {
+            const tbody = document.getElementById('table-body');
+            tbody.innerHTML = '';
+            rows.forEach(r => {
+                let badgeClass = 'badge-completed';
+                if (r.status === 'Shipped') badgeClass = 'badge-shipped';
+                if (r.status === 'Refunded') badgeClass = 'badge-refunded';
+                if (r.status === 'Cancelled') badgeClass = 'badge-cancelled';
+
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td><strong>${r.id}</strong></td>
+                    <td>${r.date}</td>
+                    <td>${r.customer}</td>
+                    <td>${r.seg}</td>
+                    <td>${r.reg}</td>
+                    <td>${r.cat}</td>
+                    <td>${r.prod}</td>
+                    <td>${r.qty}</td>
+                    <td>$${r.sales.toLocaleString('en-US', {minimumFractionDigits: 2})}</td>
+                    <td style="color: ${r.profit >= 0 ? '#059669' : '#DC2626'}">$${r.profit.toLocaleString('en-US', {minimumFractionDigits: 2})}</td>
+                    <td><span class="badge ${badgeClass}">${r.status}</span></td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function applyFilters() {
+            const reg = document.getElementById('filter-region').value;
+            const cat = document.getElementById('filter-category').value;
+            const seg = document.getElementById('filter-segment').value;
+
+            let filtered = sampleRows.filter(r => {
+                let matchReg = (reg === 'ALL' || r.reg === reg);
+                let matchCat = (cat === 'ALL' || r.cat === cat);
+                let matchSeg = (seg === 'ALL' || r.seg === seg);
+                return matchReg && matchCat && matchSeg;
+            });
+
+            populateTable(filtered);
+        }
+
+        function resetFilters() {
+            document.getElementById('filter-region').value = 'ALL';
+            document.getElementById('filter-category').value = 'ALL';
+            document.getElementById('filter-segment').value = 'ALL';
+            populateTable(sampleRows);
+        }
+
+        // On Load
+        window.addEventListener('DOMContentLoaded', () => {
+            initCharts();
+            populateTable(sampleRows);
+        });
+    </script>
+</body>
+</html>
+

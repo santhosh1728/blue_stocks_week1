@@ -1,0 +1,26 @@
+customer_id,customer_name,email,city,state,country,region,segment,signup_date
+CUST-1001,Emily Watson,emily.watson@enterprise.com,New York,NY,USA,North America,Corporate,2023-01-15
+CUST-1002,Michael Chen,mchen@gmail.com,San Francisco,CA,USA,North America,Consumer,2023-02-10
+CUST-1003,Sophia Rodriguez,sophia.r@techcorp.io,Austin,TX,USA,North America,Corporate,2023-03-05
+CUST-1004,James Wilson,jwilson_home@yahoo.com,Chicago,IL,USA,North America,Home Office,2023-03-22
+CUST-1005,Emma Dubois,emma.dubois@paris-design.fr,Paris,IDF,France,Europe,Corporate,2023-04-12
+CUST-1006,Lukas Schmidt,lukas.schmidt@berlin-tech.de,Berlin,BE,Germany,Europe,Corporate,2023-05-01
+CUST-1007,Liam O'Connor,liam.oconnor@dublin-net.ie,Dublin,L,Ireland,Europe,Consumer,2023-05-18
+CUST-1008,Yuki Tanaka,tanaka.yuki@tokyo-ventures.jp,Tokyo,13,Japan,APAC,Corporate,2023-06-08
+CUST-1009,Oliver Brown,oliver.brown@sydney-solutions.au,Sydney,NSW,Australia,APAC,Corporate,2023-06-25
+CUST-1010,Chloe Martin,chloe.m@creatives.co.uk,London,ENG,UK,Europe,Home Office,2023-07-14
+CUST-1011,David Miller,dmiller88@gmail.com,Seattle,WA,USA,North America,Consumer,2023-08-02
+CUST-1012,Jessica Taylor,jessica.taylor@toronto-biz.ca,Toronto,ON,Canada,North America,Corporate,2023-08-19
+CUST-1013,Alexander Wright,alex.wright@consulting.com,Boston,MA,USA,North America,Corporate,2023-09-04
+CUST-1014,Ananya Sharma,ananya.sharma@bangalore-tech.in,Bangalore,KA,India,APAC,Corporate,2023-09-20
+CUST-1015,Lucas Silva,lucas.silva@saopaulo-hub.br,Sao Paulo,SP,Brazil,LATAM,Consumer,2023-10-11
+CUST-1016,Hannah Abbott,hannah.a@freelance.org,Denver,CO,USA,North America,Home Office,2023-10-29
+CUST-1017,Daniel Garcia,daniel.garcia@madrid-trade.es,Madrid,MD,Spain,Europe,Corporate,2023-11-15
+CUST-1018,Grace Kim,grace.kim@seoul-dynamics.kr,Seoul,11,South Korea,APAC,Corporate,2023-12-01
+CUST-1019,Noah Anderson,noah.anderson@cloudops.com,Atlanta,GA,USA,North America,Corporate,2023-12-18
+CUST-1020,Zoe Jenkins,zoe.jenkins@gmail.com,Miami,FL,USA,North America,Consumer,2024-01-08
+CUST-1021,Matteo Rossi,matteo.rossi@milan-design.it,Milan,MI,Italy,Europe,Corporate,2024-01-22
+CUST-1022,Charlotte Lee,charlotte.lee@vancouver-tech.ca,Vancouver,BC,Canada,North America,Home Office,2024-02-14
+CUST-1023,Benjamin Scott,bscott@gmail.com,Dallas,TX,USA,North America,Consumer,2024-02-28
+CUST-1024,Amelie Fontana,amelie.fontana@geneva-finance.ch,Geneva,GE,Switzerland,Europe,Corporate,2024-03-15
+CUST-1025,Rajesh Patel,rpatel@mumbai-tech.in,Mumbai,MH,India,APAC,Corporate,2024-03-30

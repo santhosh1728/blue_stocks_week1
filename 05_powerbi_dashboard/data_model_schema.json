@@ -1,0 +1,78 @@
+{
+  "model_name": "Apex_Retail_Performance_Star_Schema",
+  "version": "1.0",
+  "description": "Star Schema dimensional model for enterprise retail reporting in Power BI / Tableau.",
+  "fact_tables": [
+    {
+      "name": "Fact_Sales",
+      "source_file": "data/order_items.csv & data/orders.csv",
+      "grain": "One record per individual line item ordered",
+      "columns": [
+        {"name": "order_item_id", "type": "string", "is_key": true},
+        {"name": "order_id", "type": "string", "foreign_key_to": "Dim_Orders.order_id"},
+        {"name": "order_date", "type": "date", "foreign_key_to": "Dim_Date.Date"},
+        {"name": "customer_id", "type": "string", "foreign_key_to": "Dim_Customers.customer_id"},
+        {"name": "product_id", "type": "string", "foreign_key_to": "Dim_Products.product_id"},
+        {"name": "quantity", "type": "integer", "aggregate": "SUM"},
+        {"name": "unit_price", "type": "currency"},
+        {"name": "discount_rate", "type": "percentage", "aggregate": "AVERAGE"},
+        {"name": "sales_amount", "type": "currency", "aggregate": "SUM"},
+        {"name": "profit", "type": "currency", "aggregate": "SUM"},
+        {"name": "order_status", "type": "string"}
+      ]
+    }
+  ],
+  "dimension_tables": [
+    {
+      "name": "Dim_Customers",
+      "source_file": "data/customers.csv",
+      "primary_key": "customer_id",
+      "columns": [
+        "customer_id", "customer_name", "email", "city", "state", "country", "region", "segment", "signup_date"
+      ]
+    },
+    {
+      "name": "Dim_Products",
+      "source_file": "data/products.csv",
+      "primary_key": "product_id",
+      "columns": [
+        "product_id", "product_name", "category", "subcategory", "cost_price", "unit_price"
+      ]
+    },
+    {
+      "name": "Dim_Date",
+      "generated_via": "CALENDAR(DATE(2024,1,1), DATE(2025,12,31))",
+      "primary_key": "Date",
+      "columns": [
+        "Date", "Year", "Quarter", "MonthNumber", "MonthName", "MonthYear", "DayOfWeek", "IsWeekend"
+      ]
+    }
+  ],
+  "relationships": [
+    {
+      "from_table": "Fact_Sales",
+      "from_column": "customer_id",
+      "to_table": "Dim_Customers",
+      "to_column": "customer_id",
+      "cardinality": "Many-to-One",
+      "cross_filtering": "Single"
+    },
+    {
+      "from_table": "Fact_Sales",
+      "from_column": "product_id",
+      "to_table": "Dim_Products",
+      "to_column": "product_id",
+      "cardinality": "Many-to-One",
+      "cross_filtering": "Single"
+    },
+    {
+      "from_table": "Fact_Sales",
+      "from_column": "order_date",
+      "to_table": "Dim_Date",
+      "to_column": "Date",
+      "cardinality": "Many-to-One",
+      "cross_filtering": "Single"
+    }
+  ]
+}
+
